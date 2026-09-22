@@ -2,109 +2,103 @@
 #include <string>
 using namespace std;
 
-// Câu 1: Ð?nh nghia c?u trúc hàng hóa
-struct Date {
-    int day, month, year;
+struct SinhVien {
+    int maSV;
+    string tenSV;
+    string lop;
+    float tongKet;
+    string hanhKiem;
 };
 
-struct HangHoa {
-    string maHang;
-    string tenHang;
-    Date ngayXuat;
-    double giaXuat; // tri?u d?ng
+struct Node {
+    SinhVien data;
+    Node* left;
+    Node* right;
 };
 
-// Câu 2: Hàm nh?p m?ng hàng hóa
-void nhapHangHoa(HangHoa ds[], int &n) {
-    cout << "Nhap so luong hang hoa: ";
-    cin >> n;
-    cin.ignore(); // b? ký t? xu?ng dòng
+Node* khoiTaoCay() {
+    return nullptr;
+}
 
-    for (int i = 0; i < n; i++) {
-        cout << "\nNhap hang hoa thu " << i + 1 << ":\n";
-        cout << "Ma hang: ";
-        getline(cin, ds[i].maHang);
-        cout << "Ten hang: ";
-        getline(cin, ds[i].tenHang);
-        cout << "Ngay xuat (dd mm yyyy): ";
-        cin >> ds[i].ngayXuat.day >> ds[i].ngayXuat.month >> ds[i].ngayXuat.year;
-        cout << "Gia xuat (trieu dong): ";
-        cin >> ds[i].giaXuat;
-        cin.ignore();
+Node* taoNode(SinhVien sv) {
+    Node* node = new Node;
+    node->data = sv;
+    node->left = nullptr;
+    node->right = nullptr;
+    return node;
+}
+
+Node* chenNode(Node* root, SinhVien sv) {
+    if (root == nullptr) return taoNode(sv);
+    if (sv.maSV < root->data.maSV)
+        root->left = chenNode(root->left, sv);
+    else if (sv.maSV > root->data.maSV)
+        root->right = chenNode(root->right, sv);
+    return root;
+}
+
+Node* timKiem(Node* root, int maSV) {
+    if (root == nullptr || root->data.maSV == maSV) return root;
+    if (maSV < root->data.maSV) return timKiem(root->left, maSV);
+    return timKiem(root->right, maSV);
+}
+
+void duyetCay(Node* root) {
+    if (root != nullptr) {
+        duyetCay(root->left);
+        cout << "Ma SV: " << root->data.maSV
+             << ", Ten: " << root->data.tenSV
+             << ", Lop: " << root->data.lop
+             << ", Tong ket: " << root->data.tongKet
+             << ", Hanh kiem: " << root->data.hanhKiem << endl;
+        duyetCay(root->right);
     }
 }
 
-// Câu 3: Hàm xu?t m?ng hàng hóa
-void xuatHangHoa(HangHoa ds[], int n) {
-    cout << "\nDanh sach hang hoa:\n";
-    for (int i = 0; i < n; i++) {
-        cout << "Ma: " << ds[i].maHang
-             << " | Ten: " << ds[i].tenHang
-             << " | Ngay xuat: " << ds[i].ngayXuat.day << "/" 
-             << ds[i].ngayXuat.month << "/" << ds[i].ngayXuat.year
-             << " | Gia: " << ds[i].giaXuat << " trieu\n";
-    }
+SinhVien nhapSinhVien() {
+    SinhVien sv;
+    cout << "Nhap ma SV: "; cin >> sv.maSV;
+    cin.ignore();
+    cout << "Nhap ten SV: "; getline(cin, sv.tenSV);
+    cout << "Nhap lop: "; getline(cin, sv.lop);
+    cout << "Nhap tong ket: "; cin >> sv.tongKet;
+    cin.ignore();
+    cout << "Nhap hanh kiem (Tot/Kha/Trung binh/Yeu): ";
+    getline(cin, sv.hanhKiem);
+    return sv;
 }
 
-// Câu 4: S?p x?p ch?n tr?c ti?p theo giá tang d?n
-void selectionSort(HangHoa ds[], int n) {
-    for (int i = 0; i < n - 1; i++) {
-        int minIndex = i;
-        for (int j = i + 1; j < n; j++) {
-            if (ds[j].giaXuat < ds[minIndex].giaXuat) {
-                minIndex = j;
-            }
-        }
-        // Hoán d?i
-        HangHoa temp = ds[i];
-        ds[i] = ds[minIndex];
-        ds[minIndex] = temp;
-    }
-}
-
-// Câu 5: Tìm ki?m nh? phân theo giá
-void timKiemGia(HangHoa ds[], int n, double X) {
-    int left = 0, right = n - 1;
-    bool found = false;
-
-    while (left <= right) {
-        int mid = (left + right) / 2;
-        if (ds[mid].giaXuat == X) {
-            cout << "\nTim thay hang hoa co gia " << X << " trieu:\n";
-            cout << "Ma: " << ds[mid].maHang
-                 << " | Ten: " << ds[mid].tenHang
-                 << " | Ngay xuat: " << ds[mid].ngayXuat.day << "/" 
-                 << ds[mid].ngayXuat.month << "/" << ds[mid].ngayXuat.year
-                 << " | Gia: " << ds[mid].giaXuat << " trieu\n";
-            found = true;
-            break;
-        } else if (ds[mid].giaXuat < X) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-
-    if (!found) {
-        cout << "\nKhong tim thay hang hoa co gia " << X << " trieu.\n";
-    }
-}
-
-// Câu 6: Hàm chính
 int main() {
-    HangHoa ds[100];
+    Node* root = khoiTaoCay();
     int n;
-    nhapHangHoa(ds, n);
-    xuatHangHoa(ds, n);
+    cout << "Nhap so luong sinh vien: ";
+    cin >> n;
+    cin.ignore();
 
-    selectionSort(ds, n);
-    cout << "\nDanh sach sau khi sap xep tang dan theo gia:\n";
-    xuatHangHoa(ds, n);
+    for (int i = 0; i < n; i++) {
+        cout << "\nNhap thong tin sinh vien thu " << i + 1 << ":\n";
+        SinhVien sv = nhapSinhVien();
+        root = chenNode(root, sv);
+    }
 
-    double X;
-    cout << "\nNhap gia can tim: ";
-    cin >> X;
-    timKiemGia(ds, n, X);
+    cout << "\nDanh sach sinh vien trong cay (duyet In-order):\n";
+    duyetCay(root);
+
+    int maTim;
+    cout << "\nNhap ma sinh vien can tim: ";
+    cin >> maTim;
+
+    Node* ketQua = timKiem(root, maTim);
+    if (ketQua != nullptr) {
+        cout << "Thong tin sinh vien tim thay:\n";
+        cout << "Ma SV: " << ketQua->data.maSV
+             << ", Ten: " << ketQua->data.tenSV
+             << ", Lop: " << ketQua->data.lop
+             << ", Tong ket: " << ketQua->data.tongKet
+             << ", Hanh kiem: " << ketQua->data.hanhKiem << endl;
+    } else {
+        cout << "Khong co sinh vien trong cay voi ma so nay.\n";
+    }
 
     return 0;
 }
